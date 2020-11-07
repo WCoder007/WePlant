@@ -1,5 +1,5 @@
 # WePlant App :seedling:
-Team BgB's entry for Tech Boston Hackathon 2020 :girl:
+Team BgB's entry for Tech Boston Hackathon 2020
 
 ## Idea
 Create an app that tells people their responsibility to not only plant a tree but also continue to take care of it!
