@@ -2,14 +2,16 @@ var async = require('async');
 var fs = require('fs');
 var pg = require('pg');
 
+var pword = fs.readFileSync('.gitignore/password.txt').toString();
+
 var config = {
     user: 'babesgotbytes',
-    password: 'techTogether2020',
+    password: pword.substr(0, pword.length - 1),
     host: 'weplant-646.gcp-us-west2.cockroachlabs.cloud',
     database: 'weplantdb',
     port: 26257,
     ssl: {
-        ca: fs.readFileSync('/home/sarah/certs/weplant-ca.crt').toString(),
+        ca: fs.readFileSync('certs/weplant-ca.crt').toString()
     }
 }
 
