@@ -79,9 +79,7 @@ function addPlant(client, user, next){
 
         async.waterfall([
             function (next){
-                console.log('inserting');
                 client.query('INSERT INTO plants(owner) VALUES ($1)', [user], next);
-                console.log('inserted');
             },
             function (updateResult, next){
                 console.log('adding');
@@ -97,7 +95,31 @@ function addPlant(client, user, next){
     });
 }
 
+function logWater(client, plantid, amount, date, next){
+    client.query('SELECT plantid FROM water_log WHERE plantid = $1 AND date = $2', [plantid, date], function (err, results) {
+        if (err){
+            return next(err);
+        } else if (results.rows.length === 0) {
+            console.log('adding date');
+            client.query('INSERT INTO water_log(plantid, date) VALUES ($1, $2)', [plantid, date]);
+        }
+
+        async.waterfall([
+            function (next){
+                console.log('updating water');
+                client.query('UPDATE water_log SET water_amt = water_amt + $1 WHERE plantid = $2 AND date = $3', [amount, plantid, date], next);
+            },
+            function(updateResult, next){
+                console.log('updating');
+                client.query('SELECT * FROM water_log', function(err, selectResult){
+                    next(err, selectResult ? selectResult.rows : null);
+                });
+            }
+        ], next);
+    });
+}
 var pool = new pg.Pool(config);
+/*
 pool.connect(function (err, client, done){
     //closes communication with db and exits
     var finish = function (){
@@ -108,43 +130,55 @@ pool.connect(function (err, client, done){
     if (err){
         console.error('could not connect to cockroachdb', err);
         finish();
-    }
+        err
 
+    }
     txnWrapper(client,
         function (client, next){
-            addPlant(client, 'skswiha2', next);
+            addPlant(client, 'test', next);
+            console.log('adding');
         },
         function (results){
             if (err) {
                 console.error('error performing transaction', err);
                 finish();
             }
-
             console.log('Plants after addition:');
             results.forEach(function(result){
                 console.log(result);
             });
             finish();
         });
-
-    /*
-    async.waterfall([
-        function (next){
-            client.query('CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY, level INT DEFAULT 1, points INT DEFAULT 0);', next);
-        },
-        function(results, next){
-            client.query('SELECT id, level, points FROM users;', next);
-        },
-    ],
-    function (err, results) {
-        if (err) {
-            console.error('Error inserting into and selecting from accounts: ', err);
-            finish();
-        }
-        
-        console.log('Users:');
-        results.rows.forEach(function (row) {
-            console.log(row);
-        });
-        finish(); */
     });
+    */
+
+    pool.connect(function (err, client, done){
+        //closes communication with db and exits
+        var finish = function (){
+            done();
+            process.exit();
+        };
+    
+        if (err){
+            console.error('could not connect to cockroachdb', err);
+            finish();
+            err
+    
+        }
+        txnWrapper(client,
+            function (client, next){
+                logWater(client, '00f08f4f-68f6-43cb-966a-2f0bf3c910d0', 8, '2020-11-12', next);
+                console.log('logged');
+            },
+            function (results){
+                if (err) {
+                    console.error('error performing transaction', err);
+                    finish();
+                }
+                console.log('Logs:');
+                results.forEach(function(result){
+                    console.log(result);
+                });
+                finish();
+            });
+        });
