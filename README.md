@@ -1,7 +1,7 @@
 # WePlant App :seedling:
 Team BgB's entry for Tech Boston Hackathon 2020
 
-**update : Winner, Best Hack using CockroachDB**
+**Update : Winner, Best Hack using CockroachDB**
 
 ## Idea
 Create an app that tells people their responsibility to not only plant a tree but also continue to take care of it!
